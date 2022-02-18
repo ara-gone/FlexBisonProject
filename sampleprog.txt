@@ -12,7 +12,7 @@ struct Dept {
 // this is a comment
 ## this is also a comment
 void main() {
-	X+Y=2147483649;
+	X+Y=21474836410;
 	2as
 	x=1+2;
 	"abc" / 4

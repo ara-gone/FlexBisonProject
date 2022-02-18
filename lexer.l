@@ -11,45 +11,47 @@
 
 %}
 
-COMMENT ([#][#]|[/][/])[a-zA-Z0-9_" "]*
-
 /* lexical analysis */
 
 %%
 
 (" ")*							{ }
 
-{COMMENT} 						{ printf("COMMENT "); }
+([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
+[(][)]							|
 
-"void" 							{ printf("VOID "); }
-"struct" 						{ printf("STRUCT "); }
-"string" 						{ printf("STRING "); }
-"int" 							{ printf("INT "); }
-"bool"	 						{ printf("BOOL "); }
-"+"   				   			{ printf("PLUS "); }
-"-"   				   	 		{ printf("MINUS "); }
-"*"   				   	 		{ printf("MUL "); }
-"="   				   	 		{ printf("EQU "); }
-"<="   				   	 		{ printf("LE "); }
-">="   				   	 		{ printf("GE "); }
-"/"   				    		{ printf("DIV "); }
-"{" 							{ printf("LEFTBRACE "); }
-"}" 							{ printf("RIGHTBRACE "); }
+"void" 							{ }
+"struct" 						|
+"string" 						|
+"int" 							|
+"bool"	 						|
+";"								|
+"+"   				   			|
+"-"   				   	 		|
+"*"   				   	 		|
+"="   				   	 		|
+"<="   				   	 		|
+">="   				   	 		|
+"/"   				    		|
+"{" 							|
+"}" 							|
 
-[-]?[0-9]						{ printf("INTLITERAL ");
+[-]?[0-9]						{ 
 								  yylval = atoi(yytext);
-								  return NUMBER;	}
-[-]?[0-9]+[a-zA-Z0-9_" "]*		{ printf("ERROR "); }
+								  return NUMBER;	
+								}
+[-]?[0-9]+[a-zA-Z0-9_" "]*		{ }
 
-["][a-zA-Z0-9_" "]*["]			{ printf("STRINGLITERAL "); }
-
+["][a-zA-Z0-9_" "]*["]			{ }
 								  
-[a-zA-Z_][a-zA-Z0-9_]*  		{ printf("IDENTIFIER "); } 
+[a-zA-Z_][a-zA-Z0-9_]*  		{ } 
 							
-[;]?[\r\n]+						{ printf("EOL\n"); }
-[\t]+							{ printf("\t"); }		  
+[;]?[\r\n]+						{ }
+[\t]+							{ }		  
 
-.								{ printf("ERROR "); }
+.								{ printf("ERROR "); 
+								  printf(yytext); 
+								  printf("\n"); }
 
 %%
 
@@ -67,7 +69,9 @@ int main(int argc, char *argv[])
   while(tok = yylex()) {
 	if(tok == NUMBER)
 	{
-		if(yylval > INT_MAX) { printf("badint "); }
+		if(yylval > INT_MAX) { printf("badint "); 
+		printf(yylval); 
+		printf("\n"); }
 	}
 
   }
