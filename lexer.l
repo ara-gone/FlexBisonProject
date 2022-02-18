@@ -15,7 +15,7 @@
 
 %%
 
-(" ")*							{ }
+(" ")+							{ }
 
 ([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
 [(][)]							|
@@ -36,11 +36,11 @@
 "{" 							|
 "}" 							|
 
-[-]?[0-9]						{ 
+[-]?[0-9]+						{ 
 								  yylval = atoi(yytext);
 								  return NUMBER;	
 								}
-[-]?[0-9]+[a-zA-Z0-9_" "]*		{ }
+[-]?[0-9]+[a-zA-Z0-9_" "]*		{ printf("ERROR "); }
 
 ["][a-zA-Z0-9_" "]*["]			{ }
 								  
@@ -71,7 +71,13 @@ int main(int argc, char *argv[])
 	{
 		if(yylval > INT_MAX) { printf("badint "); 
 		printf(yylval); 
-		printf("\n"); }
+		printf("\n");
+		return 0; }
+	}
+	
+	if(tok == ERR)
+	{
+		return ERR;
 	}
 
   }
