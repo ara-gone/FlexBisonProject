@@ -1,9 +1,9 @@
 struct Name {
-	string first_name,
-	string last_name
+	string first_name;
+	string last_name;
 }
 struct Employee {
-	Name name
+	Name name;
 }
 struct Dept {
 	Employee head
@@ -12,7 +12,7 @@ struct Dept {
 // this is a comment
 ## this is also a comment
 void main() {
-	X+Y=21474836410;
+	X+Y=21474;
 	2as
 	x=1+2;
 	"abc" / 4
@@ -23,6 +23,6 @@ void main() {
 	y = 5;
 	int i;
 	i = -1234;
-	str = "Hello World
-	str="Hello World"
+	str = "Hello World";
+	str="Hello World";
 }

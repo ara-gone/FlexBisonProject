@@ -3,10 +3,11 @@
 %{
    enum yytokentype {
      NUMBER = 1,
-	 ERR = 2
+	 ERR = 2,
+	 VALID = 3
    };
 
-	int yylval;
+	long yylval;
 	int yyltex;
 
 %}
@@ -15,43 +16,48 @@
 
 %%
 
-(" ")+							{ }
+(" ")+							|
 
-([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
+([#][#]|[/][/])[a-zA-Z0-9_" "]* |
 [(][)]							|
 
-"void" 							{ }
+"void" 							|
 "struct" 						|
 "string" 						|
 "int" 							|
 "bool"	 						|
 ";"								|
 "+"   				   			|
-"-"   				   	 		|
+"-"								|
 "*"   				   	 		|
+"%"   				   	 		|
+"&&"   				   	 		|
+"||"   				   	 		|
+"!"   				   	 		|
 "="   				   	 		|
+"=="   				   	 		|
+"!="   				   	 		|
+"<"								|
+">"								|
 "<="   				   	 		|
 ">="   				   	 		|
 "/"   				    		|
 "{" 							|
-"}" 							|
+"}"								{return VALID;}
 
 [-]?[0-9]+						{ 
-								  yylval = atoi(yytext);
+								  yylval = strtoul(yytext, NULL, 0);
 								  return NUMBER;	
 								}
-[-]?[0-9]+[a-zA-Z0-9_" "]*		{ printf("ERROR "); }
 
-["][a-zA-Z0-9_" "]*["]			{ }
-								  
-[a-zA-Z_][a-zA-Z0-9_]*  		{ } 
-							
-[;]?[\r\n]+						{ }
-[\t]+							{ }		  
+["]([a-zA-Z0-9_! ])*["]			|
+[a-zA-Z_]+						|
+[;]?[\r\n]+						|
+[\t]+							{ return VALID;}	  
 
-.								{ printf("ERROR "); 
-								  printf(yytext); 
-								  printf("\n"); }
+.								{ 	
+									return ERR;
+								}
 
 %%
 
@@ -67,19 +73,22 @@ int main(int argc, char *argv[])
   int tok; 
   yyin = fopen(argv[1], "r");
   while(tok = yylex()) {
+		
 	if(tok == NUMBER)
 	{
-		if(yylval > INT_MAX) { printf("badint "); 
-		printf(yylval); 
-		printf("\n");
-		return 0; }
+		if(yylval > INT_MAX || yylval < INT_MIN ) 
+		{ 
+			printf("ERROR\n");
+			return ERR; 
+		}	
 	}
 	
 	if(tok == ERR)
 	{
+		printf("ERROR\n");
 		return ERR;
 	}
-
   }
+  printf("VALID\n");
   fclose(yyin);
 }
