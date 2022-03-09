@@ -1,28 +1,21 @@
 struct Name {
-	string first_name;
-	string last_name;
+	// this is a declaration
+	string first_name
+	string last_name
 }
 struct Employee {
-	Name name;
+	Name name
 }
 struct Dept {
 	Employee head
 }
 
-// this is a comment
-## this is also a comment
-void main() {
-	X+Y=21474;
-	2as
+void main() { 
+	// this is a procedure
 	x=1+2;
 	"abc" / 4
-	x+y=4;
-	x = "Hello World"
+	y = "Hello World"
 	bool b;
 	int y;
 	y = 5;
-	int i;
-	i = -1234;
-	str = "Hello World";
-	str="Hello World";
 }

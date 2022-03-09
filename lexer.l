@@ -4,7 +4,12 @@
    enum yytokentype {
      NUMBER = 1,
 	 ERR = 2,
-	 VALID = 3
+	 VALID = 3,
+	 ID = 4,
+	 INTLITERAL = 5,
+	 STRINGLITERAL = 6,
+	 RESERVE = 7,
+	 BOOL_OP = 8,
    };
 
 	long yylval;
@@ -16,44 +21,52 @@
 
 %%
 
+
+
 (" ")+							|
+[(][)]							|	
 
-([#][#]|[/][/])[a-zA-Z0-9_" "]* |
-[(][)]							|
+([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
 
+					
 "void" 							|
 "struct" 						|
 "string" 						|
 "int" 							|
-"bool"	 						|
-";"								|
-"+"   				   			|
-"-"								|
-"*"   				   	 		|
-"%"   				   	 		|
+"bool"	 						{ return RESERVE; }
+
 "&&"   				   	 		|
 "||"   				   	 		|
-"!"   				   	 		|
-"="   				   	 		|
 "=="   				   	 		|
 "!="   				   	 		|
 "<"								|
 ">"								|
 "<="   				   	 		|
-">="   				   	 		|
+">="   				   	 		{ }
+
+";"								|
+"+"   				   			|
+"-"								|
+"*"   				   	 		|
+"%"   				   	 		|
 "/"   				    		|
 "{" 							|
-"}"								{return VALID;}
+"}"								|
+"!"   				   	 		|
+"="   				   	 		{ return yytext[0]; }
+
 
 [-]?[0-9]+						{ 
 								  yylval = strtoul(yytext, NULL, 0);
 								  return NUMBER;	
 								}
 
-["]([a-zA-Z0-9_! ])*["]			|
-[a-zA-Z_]+						|
-[;]?[\r\n]+						|
-[\t]+							{ return VALID;}	  
+["]([a-zA-Z0-9_! ])*["]			{ return STRINGLITERAL; }	  
+[a-zA-Z_][a-zA-Z_0-9]*			{ return ID; }	 
+
+
+[\r\n]+							|
+[\t]+							{ }	  
 
 .								{ 	
 									return ERR;
@@ -73,6 +86,11 @@ int main(int argc, char *argv[])
   int tok; 
   yyin = fopen(argv[1], "r");
   while(tok = yylex()) {
+
+	/* 
+	error checking 	
+	printf("%d\n", tok); 
+	*/
 		
 	if(tok == NUMBER)
 	{
@@ -89,6 +107,6 @@ int main(int argc, char *argv[])
 		return ERR;
 	}
   }
-  printf("VALID\n");
+  printf("Lexer: VALID\n");
   fclose(yyin);
 }
