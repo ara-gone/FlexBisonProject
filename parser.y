@@ -5,18 +5,19 @@
 
 %token EOL
 %token ID
+%token TYPE
 %token RESERVE
 
 %%
 
-prog: proc
+prog: 
   | proc prog { }
   | struct prog { }
 
 struct: RESERVE ID '{' declarations '}' { }
 
 declarations: RESERVE ID 
-  | RESERVE ID declarations
+  | TYPE ID declarations
 
 proc: RESERVE ID '(' declarations ')' '{' stmt '}'
 stmt: 
