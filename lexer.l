@@ -2,8 +2,10 @@
 	
 %{
 	#include <stdio.h>
+	#include <limits.h>
 	#include "parser.tab.h"
 
+	int yyerror(const char *msg);
 	int yyltex;
 %}
 
@@ -14,16 +16,17 @@
 
 
 (" ")+							|
-[(][)]							|	
-
 ([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
 
-					
+
+"struct"						|
 "void" 							|
-"struct" 						|
 "string" 						|
 "int" 							|
-"bool"	 						{ return RESERVE; }
+"bool"	 						{ 
+								  printf("[keyword at line %d: \"%s\"]\n", yylineno, yytext);
+								  return RESERVE; 
+								}
 
 "&&"   				   	 		|
 "||"   				   	 		|
@@ -34,6 +37,8 @@
 "<="   				   	 		|
 ">="   				   	 		{ return BOOL_OP; }
 
+"("								|
+")"								|
 ";"								|
 "+"   				   			|
 "-"								|
@@ -43,23 +48,33 @@
 "{" 							|
 "}"								|
 "!"   				   	 		|
-"="   				   	 		{ return yytext[0]; }
+"="   				   	 		{ printf("[ch at line %d: \"%s\"]\n", yylineno, yytext); return yytext[0]; }
 
 
 [-]?[0-9]+						{ 
 								  yylval = strtoul(yytext, NULL, 0);
-								  return NUMBER;	
+								  printf("[number at line %d: \"%s\"]\n", yylineno, yytext);
+								  
+								  if(yylval > INT_MAX || yylval < INT_MIN ) 
+								  { 
+									  yyerror("ERROR: Integer limit");
+								  }
+								  else
+								  {
+									  return NUMBER;
+								  }	
+								  	
 								}
 
-["]([a-zA-Z0-9_! ])*["]			{ return STRINGLITERAL; }	  
-[a-zA-Z_][a-zA-Z_0-9]*			{ return ID; }	 
+["]([a-zA-Z0-9_! ])*["]			{ printf("[strliteral at line %d: \"%s\"]\n", yylineno, yytext); return STRINGLITERAL; }	  
+[a-zA-Z_][a-zA-Z_0-9]*			{ printf("[identifier at line %d: \"%s\"]\n", yylineno, yytext); return ID; }	 
 
 
 [\r\n]+							|
 [\t]+							{ }	  
 
 .								{ 	
-									return ERR;
+									yyerror("ERROR: Unrecognized character");
 								}
 
 %%

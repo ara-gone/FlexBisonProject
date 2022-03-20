@@ -1,8 +1,8 @@
 default: build
 
 build:
-	flex -l lexer.l
 	bison -d parser.y
+	flex lexer.l
 	cc lex.yy.c parser.tab.c -lfl
 	
 run: build

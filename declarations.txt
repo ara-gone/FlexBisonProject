@@ -1,4 +1,3 @@
-x = 1 + 2
-y = "Hello world"
-
-// comment
+void main() {
+    x = 2
+}

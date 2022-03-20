@@ -1,38 +1,54 @@
 
 %{
 	#include <stdio.h>
-  int yylex();
+  #include <stdlib.h>
+
   int yyerror(const char *msg);
+  int yylex();
 %}
 
-%token NUMBER ERR VALID 
+%token NUMBER VALID 
 %token ID INTLITERAL STRINGLITERAL
-%token RESERVE TYPE BOOL_OP
+%token RESERVE TYPE BOOL_OP STRUCT
+%token EQU
 
 %%
 
-prog: 
-  | proc prog { }
-  | struct prog { }
-;
+prog: proc progm
+  | struct progm
 
-struct: RESERVE ID '{' declarations '}' { }
-;
-
-declarations: RESERVE ID 
-  | TYPE ID declarations
+progm: 
+  | proc progm
+  | struct progm
 ;
 
 proc: RESERVE ID '(' declarations ')' '{' stmt '}'
 ;
-stmt:
+
+struct: RESERVE ID '{' declarations '}' 
+;
+
+declarations: 
+  | TYPE ID 
+  | TYPE ID ',' declarations
+;
+
+stmt: 
+  | lexp '=' expr
 ; 
-  
+
+lexp: ID 
+  | ID '.' lexp
+;
+
+expr: NUMBER
+;
+
 %%
 
 /* user code */
 
-#include <limits.h>
+
 int main(int argc, char *argv[])
 {
 
@@ -43,37 +59,18 @@ int main(int argc, char *argv[])
   extern FILE* yyin;
   yyin = fopen(argv[1], "r");
 
-  int tok; 
-  while(tok = yylex()) {
-
-    if(tok == NUMBER)
-    {
-      if(yylval > INT_MAX || yylval < INT_MIN ) 
-      { 
-        printf("ERROR\n");
-        return ERR; 
-      }	
-    }
-    
-    if(tok == ERR)
-    {
-      printf("ERROR\n");
-      return ERR;
-    }
-
-  }
-
-  printf("Lexer: VALID\n");
-
   int parse = yyparse();
+  fclose(yyin);
+
   if(parse == 0)
   {
     printf("Parser: VALID\n");
   } 
+
   return 0;
 }
 
 int yyerror(const char *msg){
 	fprintf(stderr, "%s\n", msg);
-  return 0;
+  exit(1);
 }

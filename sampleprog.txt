@@ -12,8 +12,6 @@ struct Dept {
 
 void main() { 
 	// this is a procedure
-	x=1+2;
-	"abc" / 4
 	y = "Hello World"
 	bool b;
 	int y;
