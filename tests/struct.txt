@@ -1,0 +1,5 @@
+struct Name {
+	// this is a set of declarations
+	string first_name,
+	string last_name
+}

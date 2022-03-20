@@ -5,7 +5,7 @@ Implementing a sample parser for a trivial toy language. Flex is used for tokeni
 ## How to run
 
 ```c++
-make run file=($filename)
+make run file=($filepath)
 ```
 Parses a .txt file with output.
 

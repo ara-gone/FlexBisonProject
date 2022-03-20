@@ -23,7 +23,7 @@
 %%
 
 prog: proc progm
-  | struct prog
+  | struct progm
 
 progm: 
   | proc progm
@@ -48,16 +48,16 @@ declaration: type ID
 ;
 
 stmt:
-  | FOR '(' ID '=' expr ';' expr ';' stmt ')' stmt 
-  | IF '(' expr ')' THEN stmt ELSE stmt
-  | PRINTF '(' STRINGLITERAL ')' ';'
-  | RETURN expr ';' 
-  | '{' stmt-seq '}'
-  | type ID ';'
-  | ID '=' expr ';'
-  | ID '.' lexp '=' expr ';'
-  | ID '(' exprs ')' ';'
-  | ID '=' ID '(' exprs ')' ';'
+  | FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}' stmt
+  | IF '(' expr ')' THEN '{' stmt '}' ELSE '{' stmt '}'
+  | PRINTF '(' STRINGLITERAL ')' ';' stmt
+  | RETURN expr ';' stmt
+  | '{' stmt-seq '}'stmt
+  | type ID ';'stmt
+  | ID '=' expr ';' stmt
+  | ID '.' lexp '=' expr ';' stmt
+  | ID '(' exprs ')' ';' stmt
+  | ID '=' ID '(' exprs ')' ';' stmt
 ;
 
 exprs: 
