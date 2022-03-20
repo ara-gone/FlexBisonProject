@@ -8,3 +8,4 @@ Implementing a sample parser for a trivial toy language. Flex is used for tokeni
 make run file=($filename)
 ```
 Parses a .txt file with output.
+

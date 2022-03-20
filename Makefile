@@ -1,7 +1,7 @@
 default: build
 
 build:
-	bison -d parser.y
+	bison -d -v parser.y
 	flex lexer.l
 	cc lex.yy.c parser.tab.c -lfl
 	

@@ -15,21 +15,32 @@
 
 
 
-(" ")+							|
-([#][#]|[/][/])[a-zA-Z0-9_" "]* { }
+(" ")+							{ }
+([#][#]|[/][/])[a-zA-Z0-9_" "]* { printf("[comment at line %d: \"%s\"]\n", yylineno, yytext); }
 
 
-"struct"						|
-"void" 							|
 "string" 						|
 "int" 							|
 "bool"	 						{ 
 								  printf("[keyword at line %d: \"%s\"]\n", yylineno, yytext);
-								  return RESERVE; 
+								  return TYPE; 
 								}
 
-"&&"   				   	 		|
-"||"   				   	 		|
+"printf"						{ return PRINTF; }
+
+"void" 							{ return VOID; }
+
+"struct"						{ return STRUCT; }
+
+"for"							{ return FOR; }
+
+"if"							{ return IF; }
+"else"							{ return ELSE; }
+"then"							{ return THEN; }
+"true"							{ return TRUE; }
+"false"							{ return FALSE; }
+"return"						{ return RETURN; }
+
 "=="   				   	 		|
 "!="   				   	 		|
 "<"								|
@@ -37,17 +48,22 @@
 "<="   				   	 		|
 ">="   				   	 		{ return BOOL_OP; }
 
+"mod"							{ return MOD; }
+"and"							{ return AND; }
+"or"							{ return OR; }
+
 "("								|
 ")"								|
 ";"								|
 "+"   				   			|
 "-"								|
 "*"   				   	 		|
-"%"   				   	 		|
 "/"   				    		|
 "{" 							|
 "}"								|
 "!"   				   	 		|
+"."								|
+","								|
 "="   				   	 		{ printf("[ch at line %d: \"%s\"]\n", yylineno, yytext); return yytext[0]; }
 
 
@@ -78,4 +94,3 @@
 								}
 
 %%
-
