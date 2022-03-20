@@ -1,12 +1,13 @@
 
 %{
-#  include <stdio.h>
+	#include <stdio.h>
+  int yylex();
+  int yyerror(const char *msg);
 %}
 
-%token EOL
-%token ID
-%token TYPE
-%token RESERVE
+%token NUMBER ERR VALID 
+%token ID INTLITERAL STRINGLITERAL
+%token RESERVE TYPE BOOL_OP
 
 %%
 
@@ -29,15 +30,50 @@ stmt:
   
 %%
 
-main()
+/* user code */
+
+#include <limits.h>
+int main(int argc, char *argv[])
 {
-  printf("> "); 
-  yyparse();
+
+  if (argc !=2) {
+    return 1; 
+  }
+
+  extern FILE* yyin;
+  yyin = fopen(argv[1], "r");
+
+  int tok; 
+  while(tok = yylex()) {
+
+    if(tok == NUMBER)
+    {
+      if(yylval > INT_MAX || yylval < INT_MIN ) 
+      { 
+        printf("ERROR\n");
+        return ERR; 
+      }	
+    }
+    
+    if(tok == ERR)
+    {
+      printf("ERROR\n");
+      return ERR;
+    }
+
+  }
+
+  printf("Lexer: VALID\n");
+
+  int parse = yyparse();
+  if(parse == 0)
+  {
+    printf("Parser: VALID\n");
+  } 
+  return 0;
 }
 
-yyerror(char *s)
-{
-  fprintf(stderr, "error: %s\n", s);
+int yyerror(const char *msg){
+	fprintf(stderr, "%s\n", msg);
+  return 0;
 }
-
-#include "lex.yy.c"

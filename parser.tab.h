@@ -49,9 +49,15 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    EOL = 258,
-    ID = 259,
-    RESERVE = 260
+    NUMBER = 258,
+    ERR = 259,
+    VALID = 260,
+    ID = 261,
+    INTLITERAL = 262,
+    STRINGLITERAL = 263,
+    RESERVE = 264,
+    TYPE = 265,
+    BOOL_OP = 266
   };
 #endif
 
