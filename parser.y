@@ -13,14 +13,19 @@
 prog: 
   | proc prog { }
   | struct prog { }
+;
 
 struct: RESERVE ID '{' declarations '}' { }
+;
 
 declarations: RESERVE ID 
   | TYPE ID declarations
+;
 
 proc: RESERVE ID '(' declarations ')' '{' stmt '}'
-stmt: 
+;
+stmt:
+; 
   
 %%
 
