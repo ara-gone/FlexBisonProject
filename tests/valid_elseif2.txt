@@ -1,0 +1,12 @@
+## Group 69
+
+## - Alice Doherty
+## - Aoife Khan
+
+## Valid: Yes
+
+## Description: Statements within an if-statement need to end with a semicolon.
+
+void main() {
+    if (true) then if (true) then printf ("First"); else printf ("Second");
+}

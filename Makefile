@@ -4,6 +4,7 @@ build:
 	bison -d -v parser.y
 	flex lexer.l
 	cc lex.yy.c parser.tab.c -lfl
+# add SymTable.c later
 	
 run: build
 	./a.out $(file)

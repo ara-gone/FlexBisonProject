@@ -1,0 +1,14 @@
+// Group 7
+
+// - Owen Gallagher
+// - Liam O Lionaird
+
+// Valid: Yes
+
+// Description: Multiple else-if statements, and comparisons
+
+bool elif (int compare) {
+  if (compare < 5) then return false;
+  else { if (compare > 5) then return false;
+    else { return true; }}
+}
