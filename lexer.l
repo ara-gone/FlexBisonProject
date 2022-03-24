@@ -22,7 +22,7 @@
 "string" 						|
 "int" 							|
 "bool"	 						{ 
-								  printf("[keyword at line %d: \"%s\"]\n", yylineno, yytext);
+								  printf("[type at line %d: \"%s\"]\n", yylineno, yytext);
 								  return TYPE; 
 								}
 

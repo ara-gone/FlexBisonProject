@@ -2,6 +2,29 @@
 %{
 	#include <stdio.h>
   #include <stdlib.h>
+  
+/* 
+  #include "SymTable.h"
+
+
+  int add_identifier(char* sym_name) {  
+    symrec *s;
+    s = getsym (sym_name);
+    if (s == 0)
+    {
+      s = putsym (sym_name);
+    }
+    else 
+    { 
+      printf( "%s is already defined\n", sym_name );
+    }  
+  }
+
+  int context_check(char* sym_name) { 
+    if ( getsym( sym_name ) == 0 ) 
+        printf( "%s is an undeclared identifier\n", sym_name );
+  }
+*/
 
   int yyerror(const char *msg);
   int yylex();
@@ -37,6 +60,7 @@ struct: STRUCT ID '{' oneOrMoreDeclarations '}'
 ;
 
 zeroOrMoreDeclarations: 
+  | declaration
   | declaration ',' zeroOrMoreDeclarations
 ;
 
@@ -44,7 +68,7 @@ oneOrMoreDeclarations: declaration
   | declaration ',' oneOrMoreDeclarations
 ;
 
-declaration: type ID 
+declaration: type ID { /*  add_identifier($2); */ }
 ;
 
 stmt:
