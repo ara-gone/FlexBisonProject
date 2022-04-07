@@ -53,7 +53,7 @@ progm:
   | struct progm
 ;
 
-proc: return-type ID '(' zeroOrMoreDeclarations ')' '{' stmt '}'
+proc: return-type ID '(' zeroOrMoreDeclarations ')' '{' zeroOrMoreStatements '}'
 ;
 
 struct: STRUCT ID '{' oneOrMoreDeclarations '}' 
@@ -68,20 +68,24 @@ oneOrMoreDeclarations: declaration
   | declaration ',' oneOrMoreDeclarations
 ;
 
+zeroOrMoreStatements:
+  | stmt zeroOrMoreStatements
+;
+
 declaration: type ID { /*  add_identifier($2); */ }
 ;
 
-stmt:
-  | FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}' stmt
+stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
+  | IF '(' expr ')' THEN '{' stmt '}' 
   | IF '(' expr ')' THEN '{' stmt '}' ELSE '{' stmt '}'
-  | PRINTF '(' STRINGLITERAL ')' ';' stmt
-  | RETURN expr ';' stmt
-  | '{' stmt-seq '}'stmt
-  | type ID ';'stmt
-  | ID '=' expr ';' stmt
-  | ID '.' lexp '=' expr ';' stmt
-  | ID '(' exprs ')' ';' stmt
-  | ID '=' ID '(' exprs ')' ';' stmt
+  | PRINTF '(' STRINGLITERAL ')' ';' 
+  | RETURN expr ';'
+  | '{' stmt-seq '}'
+  | type ID ';'
+  | ID '=' expr ';'
+  | ID '.' lexp '=' expr ';'
+  | ID '(' exprs ')' ';'
+  | ID '=' ID '(' exprs ')' ';'
 ;
 
 exprs: 
@@ -148,6 +152,8 @@ int main(int argc, char *argv[])
   yyin = fopen(argv[1], "r");
 
   int parse = yyparse();
+
+  
   fclose(yyin);
 
   if(parse == 0)
