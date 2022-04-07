@@ -1,0 +1,28 @@
+void main() {
+	int x;
+	x = func();
+}
+
+int func() {
+	int a;
+	bool b;
+	int c;
+	bool d;
+	a = 1;
+	b = true;
+	c = 2;
+	d = false;
+
+	if (a == 1) then {
+		// error in the below "if/else" due to "else" having no return, and
+		// no return at the end of function (base level)
+		if (b) then {
+			return c;
+		} else {
+			c = 3;
+		}
+	} else if (a == 2) then {
+		return 0;
+	} else return -1;
+
+}

@@ -68,11 +68,12 @@
 
 
 [-]?[0-9]+						{ 
-								  unsigned long lval = strtoul(yytext, NULL, 0);
+								  long lval = strtoul(yytext, NULL, 0);
 								  printf("[number at line %d: \"%s\"]\n", yylineno, yytext);
-								  
-								  if(lval > INT_MAX || lval < INT_MIN ) 
+								  	  
+								  if( lval > INT_MAX || lval < INT_MIN ) 
 								  { 
+									  printf("ERROR at line %d: \"%lu\"\n", yylineno, lval);
 									  yyerror("ERROR: Integer limit");
 								  }
 								  else
