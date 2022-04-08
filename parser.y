@@ -69,15 +69,13 @@ oneOrMoreDeclarations: declaration
 ;
 
 zeroOrMoreStatements:
-  | stmt zeroOrMoreStatements
+  | if_stmt zeroOrMoreStatements
 ;
 
 declaration: type ID { /*  add_identifier($2); */ }
 ;
 
 stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
-  | IF '(' expr ')' THEN '{' stmt '}' 
-  | IF '(' expr ')' THEN '{' stmt '}' ELSE '{' stmt '}'
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
   | '{' stmt-seq '}'
@@ -86,6 +84,18 @@ stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
   | ID '.' lexp '=' expr ';'
   | ID '(' exprs ')' ';'
   | ID '=' ID '(' exprs ')' ';'
+;
+
+if_stmt: mt_stmt
+  | unmt_stmt
+;
+
+mt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' mt_stmt '}'
+  | stmt
+;
+
+unmt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}' 
+  | IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' unmt_stmt '}'
 ;
 
 exprs: 
