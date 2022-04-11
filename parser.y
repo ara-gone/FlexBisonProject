@@ -1,11 +1,7 @@
-
 %{
 	#include <stdio.h>
   #include <stdlib.h>
-  
-/* 
   #include "SymTable.h"
-
 
   int add_identifier(char* sym_name) {  
     symrec *s;
@@ -24,11 +20,22 @@
     if ( getsym( sym_name ) == 0 ) 
         printf( "%s is an undeclared identifier\n", sym_name );
   }
-*/
+
+  int display_table()
+  {
+    symrec *ptr;
+    for (ptr = sym_table; ptr != (symrec *)0; ptr = (symrec*)ptr->next)
+        printf("Entry: %s\n", ptr->name);
+    return 0;
+  }
 
   int yyerror(const char *msg);
   int yylex();
 %}
+
+%union { 
+  char *id; 
+}
 
 %token NUMBER VALID 
 %token ID STRINGLITERAL FOR RETURN 
@@ -79,8 +86,8 @@ stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
   | '{' stmt-seq '}'
-  | type ID ';'
-  | ID '=' expr ';'
+  | type ID ';'       {  add_identifier(yylval.id); }
+  | ID '=' expr ';' 
   | ID '.' lexp '=' expr ';'
   | ID '(' exprs ')' ';'
   | ID '=' ID '(' exprs ')' ';'
@@ -162,9 +169,8 @@ int main(int argc, char *argv[])
   yyin = fopen(argv[1], "r");
 
   int parse = yyparse();
-
-  
   fclose(yyin);
+  display_table();
 
   if(parse == 0)
   {

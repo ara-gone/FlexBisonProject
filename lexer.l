@@ -4,7 +4,6 @@
 	#include <stdio.h>
 	#include <limits.h>
 	#include "parser.tab.h"
-
 	int yyerror(const char *msg);
 	int yyltex;
 %}
@@ -84,7 +83,10 @@
 								}
 
 ["]([a-zA-Z0-9_! ])*["]			{ printf("[strliteral at line %d: \"%s\"]\n", yylineno, yytext); return STRINGLITERAL; }	  
-[a-zA-Z_][a-zA-Z_0-9]*			{ printf("[identifier at line %d: \"%s\"]\n", yylineno, yytext); return ID; }	 
+[a-zA-Z_][a-zA-Z_0-9]*			{ printf("[identifier at line %d: \"%s\"]\n", yylineno, yytext); 
+								  yylval.id = (char*)strdup(yytext); 
+								  return ID;
+								}	 
 
 
 [\r\n]+							|
