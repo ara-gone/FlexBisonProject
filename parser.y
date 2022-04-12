@@ -2,6 +2,7 @@
 	#include <stdio.h>
   #include <stdlib.h>
   #include "SymTable.h"
+  /* #define YYSTYPE char* */
 
   int add_identifier(char* sym_name) {  
     symrec *s;
@@ -86,11 +87,11 @@ stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
   | '{' stmt-seq '}'
-  | type ID ';'       {  add_identifier(yylval.id); }
-  | ID '=' expr ';' 
+  | type ID ';'       { add_identifier(yylval.id); }
+  | ID '=' expr ';'   { context_check(yylval.id); }
   | ID '.' lexp '=' expr ';'
   | ID '(' exprs ')' ';'
-  | ID '=' ID '(' exprs ')' ';'
+  | ID '=' ID '(' exprs ')' ';'  /*  will need to fix error with add_identifier($2); */
 ;
 
 if_stmt: mt_stmt

@@ -1,4 +1,4 @@
 void main() {
     string var;
-    var = "var";
+    x = "var";
 } // a comment

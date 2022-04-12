@@ -3,3 +3,4 @@ a.out
 parser.tab.c
 parser.tab.h
 parser.output
+SymTable.h.gch
