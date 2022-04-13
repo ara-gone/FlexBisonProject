@@ -12,8 +12,15 @@ struct Dept {
 
 void main() { 
 	// this is a procedure
-	y = "Hello World";
 	bool b;
 	int y;
 	y = 5;
+	y = "Hello World";
+}
+
+int f() {
+	int y;
+	double x; // need to add symbol table check for structs or else double is seen as ID
+	y = 6;
+	x = 7;
 }

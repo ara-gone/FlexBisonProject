@@ -4,3 +4,4 @@ parser.tab.c
 parser.tab.h
 parser.output
 SymTable.h.gch
+symbol_table.txt

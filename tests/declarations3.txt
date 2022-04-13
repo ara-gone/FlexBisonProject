@@ -1,0 +1,14 @@
+void main() {
+    f();
+    g();
+    structure s;
+    s.first_name = "Darren";
+    s.y = 123;
+    s.first_name = 20;
+} // a comment
+
+struct structure {
+	// this is a set of declarations
+	string first_name,
+    int y;
+}

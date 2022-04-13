@@ -4,12 +4,13 @@
   #include "SymTable.h"
   /* #define YYSTYPE char* */
 
-  int add_identifier(char* sym_name) {  
+  int add_symbol(char* sym_name, int type) {  
     symrec *s;
     s = getsym (sym_name);
     if (s == 0)
     {
-      s = putsym (sym_name);
+      // printf( "adding type: %d \n", type );
+      s = putsym (sym_name, type);
     }
     else 
     { 
@@ -22,11 +23,38 @@
         printf( "%s is an undeclared identifier\n", sym_name );
   }
 
+  char* prettyPrintNodeTypes(int t) 
+  {
+      switch(t) {
+      case 'S' :
+        return "struct";
+        break;
+      case 'P' :
+        return "proc";
+        break;
+      case 'I' :
+        return "id";
+        break;
+      default :
+         printf("Invalid node!\n" );
+   }
+
+   return NULL; // need to add error check here
+  }
+
   int display_table()
   {
+    FILE * pFile;
+    pFile = fopen ("symbol_table.txt","w");
+
     symrec *ptr;
     for (ptr = sym_table; ptr != (symrec *)0; ptr = (symrec*)ptr->next)
-        printf("Entry: %s\n", ptr->name);
+    {
+        fprintf(pFile,"%-15s %-15s \n", ptr->name, prettyPrintNodeTypes(ptr->type));
+    }
+        // fprintf("entry: %s with nodetype: %d\n", ptr->name, ptr->type);
+        
+    fclose (pFile);
     return 0;
   }
 
@@ -36,10 +64,12 @@
 
 %union { 
   char *id; 
+  double num;
 }
 
-%token NUMBER VALID 
-%token ID STRINGLITERAL FOR RETURN 
+%token <double> NUMBER 
+%token <id> ID 
+%token STRINGLITERAL FOR RETURN VALID 
 %token TYPE BOOL_OP STRUCT VOID PRINTF
 %token EQU MOD AND OR IF THEN ELSE TRUE FALSE
 
@@ -61,10 +91,10 @@ progm:
   | struct progm
 ;
 
-proc: return-type ID '(' zeroOrMoreDeclarations ')' '{' zeroOrMoreStatements '}'
+proc: return-type ID '(' zeroOrMoreDeclarations ')' '{' zeroOrMoreStatements '}' { add_symbol($2, 'P'); }
 ;
 
-struct: STRUCT ID '{' oneOrMoreDeclarations '}' 
+struct: STRUCT ID '{' oneOrMoreDeclarations '}' { add_symbol($2, 'S'); }
 ;
 
 zeroOrMoreDeclarations: 
@@ -80,18 +110,18 @@ zeroOrMoreStatements:
   | if_stmt zeroOrMoreStatements
 ;
 
-declaration: type ID { /*  add_identifier($2); */ }
+declaration: type ID { /*  add_symbol($2); */ }
 ;
 
 stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
   | '{' stmt-seq '}'
-  | type ID ';'       { add_identifier(yylval.id); }
-  | ID '=' expr ';'   { context_check(yylval.id); }
+  | type ID ';'       { add_symbol($2, 'I'); }
+  | ID '=' expr ';'   { context_check($1); } 
   | ID '.' lexp '=' expr ';'
   | ID '(' exprs ')' ';'
-  | ID '=' ID '(' exprs ')' ';'  /*  will need to fix error with add_identifier($2); */
+  | ID '=' ID '(' exprs ')' ';'  { context_check($1); }
 ;
 
 if_stmt: mt_stmt
@@ -140,6 +170,7 @@ equality: term
   | expr OR expr
   | expr MOD expr
   | expr AND expr
+  | expr BOOL_OP expr
 ;
 
 term: NUMBER
