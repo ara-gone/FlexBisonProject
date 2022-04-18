@@ -81,7 +81,7 @@
 								  	
 								}
 
-["]([a-zA-Z0-9_! ])*["]			{ fprintf(lexFile, "[strliteral at line %d: %s]\n", yylineno, yytext); return STRINGLITERAL; }	  
+["]([a-zA-Z0-9_!? ])*["]		{ fprintf(lexFile, "[strliteral at line %d: %s]\n", yylineno, yytext); return STRINGLITERAL; }	  
 [a-zA-Z_][a-zA-Z_0-9]*			{ fprintf(lexFile, "[identifier at line %d: \"%s\"]\n", yylineno, yytext); 
 								  yylval.id = (char*)strdup(yytext); 
 								  return ID;

@@ -20,7 +20,7 @@
 
   int context_check(char* sym_name) { 
     if ( getsym( sym_name ) == 0 ) 
-        printf( "symbol table: undeclared ID: %s\n", sym_name );
+        printf( "undeclared ID in symtable: %s\n", sym_name );
   }
 
   struct ast *type_check(int nodetype, struct ast *root)
@@ -191,10 +191,9 @@ zeroOrMoreStatements:
 declaration: type ID { /*  add_symbol($2); */ }
 ;
 
-stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'  // { print_tree($7); }
+stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt-seq '}' // { print_tree($7); }
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
-  | '{' stmt-seq '}'
   | type ID ';'       { add_symbol($2, 'I'); }                 // declarations
   | ID '=' expr ';'   { context_check($1); }                   // assignment
   | ID '.' lexp '=' expr ';'                                   // referencing struct
@@ -219,7 +218,7 @@ exprs:
 ;
 
 stmt-seq:
-  | stmt ',' stmt-seq
+  | stmt stmt-seq
 ;
 
 type: TYPE
