@@ -6,13 +6,16 @@ int yyerror(const char *msg);
 struct symrec
 {
   char *name;             /* name of symbol */
-  int type;
+  int nodetype;
+  char* type;
   struct symrec *next;    /* link field  */
 
   union
   {
     double val;
     char *str;
+    struct symrec *args;
+    struct symrec *declarations;
   };
 
 };
@@ -20,17 +23,19 @@ struct symrec
 typedef struct symrec symrec;
 symrec *sym_table = (symrec*)0;
 
-symrec *putsym ( char *sym_name, int type )
+symrec *putsym ( char *sym_name, int nodetype, char* type )
 {
   symrec *ptr;
   ptr = (symrec *) malloc (sizeof(symrec));
   ptr->name = (char *) malloc (strlen(sym_name)+1);
   strcpy (ptr->name,sym_name);
+  ptr->nodetype = nodetype;
   ptr->type = type;
   ptr->next = (struct symrec *)sym_table;
   sym_table = ptr;
   return ptr;
 }
+
 symrec *getsym ( char *sym_name )
 {
   symrec *ptr;

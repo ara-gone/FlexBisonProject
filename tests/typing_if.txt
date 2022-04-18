@@ -1,0 +1,28 @@
+// this file contains examples of well typed boolean expressions in IF statements!
+void main() { 
+	if (true) then
+	{
+		printf("hi!");
+	}
+
+	int x;
+
+	if (9 != 8) then
+	{
+		printf("hola!");
+	}
+
+	if (23 == (5 + 4)) then
+	{
+		x = 3;
+	}
+	else
+	{
+		x = 15;
+	}
+
+	if (23 == (5 * 4)) then
+	{
+		printf("hi again!");
+	}
+}

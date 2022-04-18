@@ -1,0 +1,44 @@
+
+void main() { 
+	if (true + 14) then
+	{
+		printf("hi!");
+	}
+
+	int x;
+	int a;
+	int b;
+	int c;
+
+	a = 13;
+	b = 16;
+	c = 14;
+
+	if (23 == (5 < 4)) then
+	{
+		x = 3;
+	}
+	else
+	{
+		x = 15;
+	}
+
+	if (a < (b < c)) then
+	{
+		x = 3;
+	}
+	else
+	{
+		x = 15;
+	}
+
+	// this example is actually caught by the parser grammar!
+	if (a < b < c) then
+	{
+		x = 3;
+	}
+	else
+	{
+		x = 15;
+	}
+}

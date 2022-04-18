@@ -15,12 +15,14 @@ void main() {
 	bool b;
 	int y;
 	y = 5;
+	x = 6;
 	y = "Hello World";
+	f();
 }
 
 int f() {
 	int y;
-	double x; // need to add symbol table check for structs or else double is seen as ID
+	Name aName;
+	aName.firstName = "Jordan"; // need to add symbol table check for structs or else double is seen as ID
 	y = 6;
-	x = 7;
 }

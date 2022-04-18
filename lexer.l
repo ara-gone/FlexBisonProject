@@ -1,5 +1,4 @@
-/* declarations */
-	
+
 %{
 	#include <stdio.h>
 	#include <limits.h>
@@ -9,24 +8,23 @@
 	FILE* lexFile;
 %}
 
-/* lexical analysis */
-
 %%
 
-(" ")+							{ }
+(" ")+							// do nothing!
 ([#][#]|[/][/]).*				{ fprintf(lexFile, "[comment at line %d: \"%s\"]\n", yylineno, yytext); }
 
 
 "string" 						|
 "int" 							|
 "bool"	 						{ 
+								  yylval.id = strdup(yytext);
 								  fprintf(lexFile, "[type at line %d: \"%s\"]\n", yylineno, yytext);
 								  return TYPE; 
 								}
 
 "printf"						{ return PRINTF; }
 
-"void" 							{ return VOID; }
+"void" 							{ yylval.id = strdup(yytext); return VOID; }
 
 "struct"						{ return STRUCT; }
 
@@ -89,7 +87,7 @@
 
 
 [\r\n]+							|
-[\t]+							{ }	  
+[\t]+							// do nothing!
 
 .								{ 	
 									yyerror("ERROR: Unrecognized character");
