@@ -6,6 +6,7 @@
 	#include "parser.tab.h"
 	int yyerror(const char *msg);
 	int yyltex;
+	FILE* lexFile;
 %}
 
 /* lexical analysis */
@@ -13,13 +14,13 @@
 %%
 
 (" ")+							{ }
-([#][#]|[/][/]).*				{ printf("[comment at line %d: \"%s\"]\n", yylineno, yytext); }
+([#][#]|[/][/]).*				{ fprintf(lexFile, "[comment at line %d: \"%s\"]\n", yylineno, yytext); }
 
 
 "string" 						|
 "int" 							|
 "bool"	 						{ 
-								  printf("[type at line %d: \"%s\"]\n", yylineno, yytext);
+								  fprintf(lexFile, "[type at line %d: \"%s\"]\n", yylineno, yytext);
 								  return TYPE; 
 								}
 
@@ -61,12 +62,12 @@
 "!"   				   	 		|
 "."								|
 ","								|
-"="   				   	 		{ printf("[ch at line %d: \"%s\"]\n", yylineno, yytext); return yytext[0]; }
+"="   				   	 		{ fprintf(lexFile, "[ch at line %d: \"%s\"]\n", yylineno, yytext); return yytext[0]; }
 
 
 [-]?[0-9]+						{ 
 								  long lval = strtoul(yytext, NULL, 0);
-								  printf("[number at line %d: \"%s\"]\n", yylineno, yytext);
+								  fprintf(lexFile, "[number at line %d: \"%s\"]\n", yylineno, yytext);
 								  	  
 								  if( lval > INT_MAX || lval < INT_MIN ) 
 								  { 
@@ -80,8 +81,8 @@
 								  	
 								}
 
-["]([a-zA-Z0-9_! ])*["]			{ printf("[strliteral at line %d: %s]\n", yylineno, yytext); return STRINGLITERAL; }	  
-[a-zA-Z_][a-zA-Z_0-9]*			{ printf("[identifier at line %d: \"%s\"]\n", yylineno, yytext); 
+["]([a-zA-Z0-9_! ])*["]			{ fprintf(lexFile, "[strliteral at line %d: %s]\n", yylineno, yytext); return STRINGLITERAL; }	  
+[a-zA-Z_][a-zA-Z_0-9]*			{ fprintf(lexFile, "[identifier at line %d: \"%s\"]\n", yylineno, yytext); 
 								  yylval.id = (char*)strdup(yytext); 
 								  return ID;
 								}	 
@@ -95,3 +96,13 @@
 								}
 
 %%
+
+int display_output() {
+	lexFile = fopen ("lexer_output.txt","w");
+	return 0;
+}
+
+int close_output() {
+	fclose(lexFile);
+}
+

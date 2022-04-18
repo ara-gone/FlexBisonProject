@@ -6,3 +6,4 @@ parser.output
 SymTable.h.gch
 symbol_table.txt
 other_tests
+lexer_output.txt

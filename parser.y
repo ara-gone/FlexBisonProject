@@ -20,18 +20,40 @@
 
   int context_check(char* sym_name) { 
     if ( getsym( sym_name ) == 0 ) 
-        printf( "%s is an undeclared identifier\n", sym_name );
+        printf( "symbol table: undeclared ID: %s\n", sym_name );
   }
 
   struct ast *type_check(int nodetype, struct ast *root)
   {
-    printf("nodetype: %d\n", nodetype);
+    printf("checking root with nodetype: %d\n", nodetype);
     return NULL;
   }
 
   char* prettyPrintNodeTypes(int t) 
   {
       switch(t) {
+      case '+' :
+      case '-' :
+      case '*' :
+      case '/' :
+      case '!' :
+      case '|' :
+      case '%' :
+      case '&' :
+        return "op";
+        break;
+      case '=' :
+        return "b_op";
+        break;
+      case 'B' :
+        return "boolean";
+        break;
+      case 'D' :
+        return "integer";
+        break;
+      case 'N' :
+        return "negation";
+        break;
       case 'S' :
         return "struct";
         break;
@@ -41,11 +63,14 @@
       case 'I' :
         return "id";
         break;
+      case 'L' :
+        return "lexp";
+        break;
       default :
-         printf("Invalid node!\n" );
+         break;
    }
 
-   return NULL; // need to add error check here
+   return "unknown"; // need to add error check here
   }
 
   int display_table()
@@ -64,9 +89,40 @@
     return 0;
   }
 
-  int walk_tree(struct ast *node)
+  int print_tree(struct ast *node)
   {
 
+    if (node != NULL) {
+      
+      int t = node->nodetype;
+
+      switch(t) {
+        case '+' :
+        case '-' :
+        case '*' :
+        case '/' :
+        case '!' :
+        case '|' :
+        case '%' :
+        case '&' :
+        case '=' :
+
+        printf("(");
+        print_tree(node->l);
+        printf("%s", prettyPrintNodeTypes(node->nodetype));
+        print_tree(node->r);
+        printf(")");
+
+        break;
+
+        default: // else if leaf node
+        printf("(%s)", prettyPrintNodeTypes(node->nodetype));
+
+        break;
+      }
+    }
+
+    return 0;
   }
 
   char* itoa(int val, int base)
@@ -79,6 +135,7 @@
   }
 
   int yylex();
+  int display_output();
 %}
 
 %union { 
@@ -134,7 +191,7 @@ zeroOrMoreStatements:
 declaration: type ID { /*  add_symbol($2); */ }
 ;
 
-stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'  { type_check('B', $7); }
+stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt '}'  // { print_tree($7); }
   | PRINTF '(' STRINGLITERAL ')' ';' 
   | RETURN expr ';'
   | '{' stmt-seq '}'
@@ -174,7 +231,7 @@ return-type: TYPE
 ;
 
 expr: addsub
-  | '-' expr         { $$ = newast('-', $2, NULL); }
+  | '-' expr         { $$ = newast('N', $2, NULL); }
   | '!' expr         { $$ = newast('!', $2, NULL); }
 ;
 
@@ -189,18 +246,18 @@ factor: equality
 ;
 
 equality: term 
-  | expr OR expr
-  | expr MOD expr
-  | expr AND expr
-  | expr BOOL_OP expr
+  | expr OR expr        { $$ = newast('|', $1, $3); }
+  | expr MOD expr       { $$ = newast('%', $1, $3); }
+  | expr AND expr       { $$ = newast('&', $1, $3); }
+  | expr BOOL_OP expr   { $$ = newast('=', $1, $3); }
 ;
 
-term: NUMBER         { $$ = newval('D', itoa($1,10)); printf(itoa($1,10)); }
-  | STRINGLITERAL    { $$ = newval('S', $1); }
-  | TRUE             { $$ = newval('B', "true"); }
-  | FALSE            { $$ = newval('B', "false"); }
-  | lexp             { $$ = newval('L', "stub"); } // how to get type of lexp? make a new ast type?
-  | '(' expr ')'     { $$ = newast('|', $2, NULL); }
+term: NUMBER            { $$ = newval('D', itoa($1,10));  } // set (base=10) for base 10 conversion
+  | STRINGLITERAL       { $$ = newval('S', $1); }
+  | TRUE                { $$ = newval('B', "true"); }
+  | FALSE               { $$ = newval('B', "false"); }
+  | lexp                { $$ = newval('L', "nothing"); }   // how to get type of lexp? make a new ast type?
+  | '(' expr ')'        { $$ = newast('(', $2, NULL); }
 ;
 
 lexp: ID
@@ -217,6 +274,10 @@ int main(int argc, char *argv[])
   if (argc !=2) {
     return 1; 
   }
+
+  // printf("atoi test: %s\n", itoa(20,10));
+
+  display_output();
 
   extern FILE* yyin;
   yyin = fopen(argv[1], "r");
