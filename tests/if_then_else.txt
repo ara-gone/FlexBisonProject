@@ -1,9 +1,0 @@
-void main() {
-	if (true) then {
-		x = 2;
-		if (true) then {} else {}
-	} 
-	else {
-		x = 3;
-	}
-}  

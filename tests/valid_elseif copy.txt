@@ -1,6 +1,0 @@
-// Group 7
-bool elif (int compare) {
-  if (compare < 5) then return false;
-  else { if (compare > 5) then return false;
-    else { return true; }}
-}

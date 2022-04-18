@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+int yyerror(const char *msg);
+
 struct symrec
 {
   char *name;             /* name of symbol */
@@ -36,4 +38,48 @@ symrec *getsym ( char *sym_name )
     if (strcmp (ptr->name,sym_name) == 0)
       return ptr;
   return 0;
+}
+
+// handles expressions
+struct ast 
+{
+  int nodetype;
+  struct ast *l;
+  struct ast *r;
+};
+
+// handles single-value nodes
+struct aval
+{
+  int nodetype;
+  char *value;
+};
+
+struct ast *newast(int nodetype, struct ast *l, struct ast *r)
+{
+ struct ast *a = malloc(sizeof(struct ast));
+
+ if (!a) {
+   yyerror("out of space");
+   exit(0);
+ }
+ 
+ a->nodetype = nodetype;
+ a->l = l;
+ a->r = r;
+ return a;
+}
+
+struct ast *newval(int nodetype, char* value)
+{
+  struct aval *a = malloc(sizeof(struct aval));
+
+  if(!a) {
+    yyerror("out of space");
+    exit(0);
+  }
+  
+  a->nodetype = nodetype;
+  a->value = value;
+  return (struct ast *)a;
 }

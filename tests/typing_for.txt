@@ -1,0 +1,7 @@
+void main() { 
+	for (i = (3+5); i < 12; i = i + 1;) 
+	// remember statements end with semicolons!
+	{
+		printf("success!");
+	}
+}

@@ -12,10 +12,8 @@
 
 %%
 
-
-
 (" ")+							{ }
-([#][#]|[/][/])[a-zA-Z0-9_" "]* { printf("[comment at line %d: \"%s\"]\n", yylineno, yytext); }
+([#][#]|[/][/]).*				{ printf("[comment at line %d: \"%s\"]\n", yylineno, yytext); }
 
 
 "string" 						|
@@ -82,7 +80,7 @@
 								  	
 								}
 
-["]([a-zA-Z0-9_! ])*["]			{ printf("[strliteral at line %d: \"%s\"]\n", yylineno, yytext); return STRINGLITERAL; }	  
+["]([a-zA-Z0-9_! ])*["]			{ printf("[strliteral at line %d: %s]\n", yylineno, yytext); return STRINGLITERAL; }	  
 [a-zA-Z_][a-zA-Z_0-9]*			{ printf("[identifier at line %d: \"%s\"]\n", yylineno, yytext); 
 								  yylval.id = (char*)strdup(yytext); 
 								  return ID;

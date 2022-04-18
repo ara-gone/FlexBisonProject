@@ -1,9 +1,0 @@
-
-struct choice { string one, string two }
-
-string makechoice () {
-  choice result;
-  result.one = "left";
-  result.two = "right";
-  return result.one;
-}

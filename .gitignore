@@ -5,3 +5,4 @@ parser.tab.h
 parser.output
 SymTable.h.gch
 symbol_table.txt
+other_tests
