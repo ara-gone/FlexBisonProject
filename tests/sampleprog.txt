@@ -1,7 +1,10 @@
 struct Name {
 	// this is a set of declarations
 	string first_name,
-	string last_name
+	string last_name,
+	int id,
+	int supervisorID,
+	bool isManager
 }
 struct Employee {
 	Name name
@@ -13,16 +16,25 @@ struct Dept {
 void main() { 
 	// this is a procedure
 	bool b;
-	int y;
-	y = 5;
-	x = 6;
+	string y;
+	b = true;
 	y = "Hello World";
 	f();
+	int aNum;
 }
 
 int f() {
+	// scoping works!
 	int y;
+	y = 15;
+
+	
+	
 	Name aName;
-	aName.firstName = "Jordan"; // need to add symbol table check for structs or else double is seen as ID
-	y = 6;
+	aName.first_name = "Jordan";
+	aName.last_name = "Michael";
+	aName.id = 1234;
+	aName.isManager = true;
+	// change any of the above types = error!
+	return 5;
 }

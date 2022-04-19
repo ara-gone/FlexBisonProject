@@ -9,7 +9,8 @@
     D = integer
     I = identifier <id>
     L = left expression
-    S = struct
+    S = struct entry
+    G = struct declaration
     T = string
     P = procedure/function
     B = boolean VALUE (true or false)
@@ -22,34 +23,28 @@
   int display_output();
   int display_table();
   int print_tree();
+  void check_procs();
   char* prettyPrintNodeTypes(int t);
 
-  int add_symbol(char* sym_name, int nodetype, char* type) {  
+  int add_symbol(char* sym_name, int nodetype, char* type, char* scope) {  
     symrec *s;
     s = getsym (sym_name);
     if (s == 0)
     {
-      s = putsym (sym_name, nodetype, type);
+      s = putsym (sym_name, nodetype, type, scope);
     }
     else 
     { 
-      printf( "%s is already defined\n", sym_name );
+      if (strcmp(scope,s->scope) != 0) // if scope is different, can redefine!
+      {
+        s->type = type;
+        s->scope = scope;
+      }
+      else
+      {
+        yyerror("redeclaration of variable within same scope");
+      }
     }  
-  }
-
-  int context_check(char* sym_name, int type) { 
-    
-    struct symrec *ptr = getsym( sym_name );
-    if ( getsym( sym_name ) == 0 ) 
-    {
-        yyerror("undeclared ID in symtable");
-        return 0;
-    }
-    else 
-    {
-        printf( "%s\n", prettyPrintNodeTypes(type) );
-
-    }
   }
 
   int get_sym_type(char* sym_name) { 
@@ -57,7 +52,7 @@
     struct symrec *ptr = getsym( sym_name );
     if ( getsym( sym_name ) == 0 ) 
     {
-        printf( "undeclared ID in symtable: %s\n", sym_name );
+        yyerror("undeclared ID or record type in symtable");
     }
     else 
     {
@@ -82,6 +77,45 @@
     }
     return 0;
   }
+  
+  int check_scope(char* scope, int type) { 
+    
+    struct symrec *ptr = getsym( scope );
+
+    if (scope != NULL)
+    {
+        int t;
+        t = get_sym_type(scope);
+
+        // printf( "does %s = %s in %s?(%d=%d) \n", prettyPrintNodeTypes(type), 
+        //   prettyPrintNodeTypes(t), scope, type, t );
+
+        if (t != type)
+          yyerror("return type or lexp reference is incorrect");
+    }
+  }
+
+  int context_check(char* sym_name, int type) { 
+    
+    struct symrec *ptr = getsym( sym_name );
+    if ( getsym( sym_name ) == 0 ) 
+    {
+        yyerror("undeclared ID in symtable");
+        return 0;
+    }
+    else 
+    {
+        int t;
+        t = get_sym_type(sym_name);
+
+        // printf( "does %s = %s?(%d=%d) \n", prettyPrintNodeTypes(type), 
+        //   prettyPrintNodeTypes(t), type, t );
+
+        if (t != type)
+          yyerror("badly typed assignment or function declaration");
+    }
+  }
+
 
   int type_check(struct ast *node)
   {
@@ -145,8 +179,7 @@
         // single values
         case 'B' :
         case 'D' :
-        case 'I' : // need to resolve I/L to become B and D through symbols!
-        case 'L' :
+        case 'T' :
 
         return (node->nodetype); // current node!
 
@@ -156,9 +189,33 @@
     }
     
     return 0;
+  } 
+
+
+  // vars for scoping
+
+  char* scope;
+  char* buffer;
+  int sc_num = 0;
+  int arg_counter;
+  int asprintf(char **restrict strp, const char *restrict fmt, ...);
+
+  int enter_scope(char* sc)
+  {
+    strcpy(scope,sc); 
+    asprintf(&buffer, "%d", sc_num); 
+    strcat(scope,buffer);  
   }
 
-  int scope;
+  int add_call(char* fname, char* scope, int type) {  
+    call *c;
+    c = putcall(fname, scope, type);
+    // do checking after parse method finishes
+  }
+
+  int add_call_arg(char* fname, struct ast* arg) {  
+    // do checking after parse method finishes
+  }
 %}
 
 %union { 
@@ -174,6 +231,7 @@
 
 %type <tree> expr addsub factor equality term
 %type <id> type return-type
+%type <i> lexp
 
 %nonassoc BOOL_OP
 %right '='
@@ -193,10 +251,14 @@ progm:
   | struct progm
 ;
 
-proc: return-type ID '(' zeroOrMoreDeclarations ')' '{' zeroOrMoreStatements '}' { add_symbol($2, 'P', $1); }
+proc: return-type ID 
+      { scope = $2; add_symbol($2, 'P', $1, scope); }
+      '(' zeroOrMoreDeclarations ')' '{' zeroOrMoreStatements '}' 
 ;
 
-struct: STRUCT ID '{' oneOrMoreDeclarations '}' { add_symbol($2, 'S', NULL); }
+struct: STRUCT ID 
+        { scope = $2; add_symbol($2, 'S', NULL, scope); }
+        '{' oneOrMoreDeclarations '}' 
 ;
 
 zeroOrMoreDeclarations: 
@@ -212,33 +274,42 @@ zeroOrMoreStatements:
   | if_stmt zeroOrMoreStatements
 ;
 
-declaration: type ID { /*  add_symbol($2); */ }
+declaration: type ID { add_symbol($2, 'G', $1, scope); }
 ;
 
-stmt: FOR '(' ID '=' expr ';' expr ';' stmt ')' '{' stmt-seq '}' { type_check($7); }
+stmt: FOR '(' ID { enter_scope("for"); } '=' expr ';' expr ';' stmt ')' '{' stmt-seq '}' 
+      { 
+        sc_num++;
+        if (type_check($8) != 'B') yyerror("expr in FOR is not a boolean exp"); 
+      }
+
   | PRINTF '(' STRINGLITERAL ')' ';' 
-  | RETURN expr ';'
-  | type ID ';'       { add_symbol($2, 'I', $1); }                 // declarations
-  | ID '=' expr ';'   { context_check( $1, type_check($3) ); }                   // assignment
-  | ID '.' lexp '=' expr ';'                                   // referencing struct
-  | ID '(' exprs ')' ';'                                       // function call
-  | ID '=' ID '(' exprs ')' ';'  { context_check($1, get_sym_type($3)); }        // function assignment
+  | RETURN expr ';'                 { check_scope(scope, type_check($2)); }  
+  | type ID ';'                     { add_symbol($2, 'I', $1, scope); }                 
+  | ID '=' expr ';'                 { context_check( $1, type_check($3) ); }                   
+  | ID '.' lexp '=' expr ';'        { get_sym_type($1); if (type_check($5) != $3) yyerror("bad struct reference");  }                    
+  | ID '(' args ')' ';'            { add_call($1, scope, -1); arg_counter = 0; }                // check proc calls later!                   
+  | ID '=' ID '(' args')' ';'     { add_call($3, scope, get_sym_type($1)); arg_counter = 0; }  // ...after initial parse do this -> { context_check($1, get_sym_type($3)); } 
 ;
 
 if_stmt: mt_stmt
   | unmt_stmt
 ;
-                                                                  // print_tree($3); 
-mt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' mt_stmt '}' { type_check($3); }
+                                                                   // print_tree($3); 
+mt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' mt_stmt '}' { type_check($3); scope = "if"; }
   | stmt
+; 
+
+unmt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}'                   { type_check($3); scope = "if"; }
+  | IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' unmt_stmt '}'   { type_check($3); scope = "if"; }
 ;
 
-unmt_stmt: IF '(' expr ')' THEN '{' mt_stmt '}'                    { type_check($3); }
-  | IF '(' expr ')' THEN '{' mt_stmt '}' ELSE '{' unmt_stmt '}'    { type_check($3); }
+args: /* empty  */
+    | exprs
 ;
 
-exprs: 
-    | expr "," exprs
+exprs: expr            { call_table->args[arg_counter++] = $1; }
+    | expr "," exprs   { call_table->args[arg_counter++] = $1; }
 ;
 
 stmt-seq:
@@ -276,15 +347,15 @@ equality: term
 ;
 
 term: NUMBER            { $$ = newval('D', itoa($1,10));  } // set (base=10) for base 10 conversion
-  | STRINGLITERAL       { $$ = newval('S', $1); }
+  | STRINGLITERAL       { $$ = newval('T', $1); }
   | TRUE                { $$ = newval('B', "true"); }
   | FALSE               { $$ = newval('B', "false"); }
-  | lexp                { $$ = newval('L', "nothing"); }   // how to get type of lexp? make a new ast type?
+  | lexp                { $$ = newval($1, NULL); }  
   | '(' expr ')'        { $$ = newast('(', $2, NULL); }
 ;
 
-lexp: ID
-  | ID '.' lexp
+lexp: ID                { $$ = get_sym_type($1); }
+  | ID '.' lexp         { check_scope($1,$3); $$ = $3; }
 ;
 
 %%
@@ -302,6 +373,10 @@ int main(int argc, char *argv[])
 
   display_output();
 
+  scope = (char *) malloc(100);
+  buffer = (char *) malloc(100);
+  arg_counter = 0;
+
   extern FILE* yyin;
   yyin = fopen(argv[1], "r");
 
@@ -309,11 +384,14 @@ int main(int argc, char *argv[])
   fclose(yyin);
   display_table();
 
-  if(parse == 0)
+  if(parse != 0)
   {
-    printf("VALID\n");
+    yyerror("INVALID\n");
   } 
 
+  check_procs();
+
+  printf("VALID\n");
   return 0;
 }
 
@@ -344,6 +422,12 @@ char* prettyPrintNodeTypes(int t)
       case '=' :
         return "b_op";
         break;
+      case 'T' :
+        return "string";
+        break;
+      case 'G' :
+        return "declaration";
+        break;
       case 'B' :
         return "boolean";
         break;
@@ -372,14 +456,40 @@ char* prettyPrintNodeTypes(int t)
    return "unknown"; // need to add error check here
   }
   
+  void check_procs()
+  {
+    call *ptr;
+    for (ptr = call_table; ptr != (call *)0; ptr = (call*)ptr->next)
+    {
+      // printf("%s : %s : %d\n", ptr->fname, ptr->scope, ptr->type);
+      // check all typed calls
+      if (ptr->type != -1)
+      {
+        if (ptr->type != get_sym_type(ptr->fname))
+        {
+          yyerror("bad procedure call");
+        }
+
+        int max_args_size = 100;
+        for (int i = 0; i < max_args_size; i++)
+        {
+          struct ast *node = ptr->args[i];
+          type_check(node);
+        }
+      }
+
+    }
+  }
 
   int display_table()
   {
     FILE * pFile;
     pFile = fopen ("symbol_table.txt","w");
 
-    fprintf(pFile,"%-15s %-15s %-15s \n", "*identifier*", "*id_type*", "*var_type*");
-    fprintf(pFile,"%-15s %-15s %-15s \n", "----------", "-----", "----------");
+    fprintf(pFile,"%-15s %-15s %-15s %-15s \n", 
+      "*identifier*", "*id_type*", "*var_type*", "*scope*");
+    fprintf(pFile,"%-15s %-15s %-15s %-15s \n", 
+      "----------", "-----", "----------", "-----");
 
     symrec *ptr;
 
@@ -400,7 +510,8 @@ char* prettyPrintNodeTypes(int t)
 
     for (ptr = sym_table; ptr != (symrec *)0; ptr = (symrec*)ptr->next)
     {
-        fprintf(pFile,"%-15s %-15s %-15s \n", ptr->name, prettyPrintNodeTypes(ptr->nodetype), ptr->type);
+        fprintf(pFile,"%-15s %-15s %-15s %-15s \n", ptr->name, 
+          prettyPrintNodeTypes(ptr->nodetype), ptr->type, ptr->scope);
     }
         
     fclose (pFile);

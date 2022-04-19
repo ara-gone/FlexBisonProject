@@ -8,22 +8,14 @@ struct symrec
   char *name;             /* name of symbol */
   int nodetype;
   char* type;
+  char* scope;
   struct symrec *next;    /* link field  */
-
-  union
-  {
-    double val;
-    char *str;
-    struct symrec *args;
-    struct symrec *declarations;
-  };
-
 };
 
 typedef struct symrec symrec;
 symrec *sym_table = (symrec*)0;
 
-symrec *putsym ( char *sym_name, int nodetype, char* type )
+symrec *putsym ( char *sym_name, int nodetype, char* type, char* scope )
 {
   symrec *ptr;
   ptr = (symrec *) malloc (sizeof(symrec));
@@ -31,6 +23,7 @@ symrec *putsym ( char *sym_name, int nodetype, char* type )
   strcpy (ptr->name,sym_name);
   ptr->nodetype = nodetype;
   ptr->type = type;
+  ptr->scope = scope;
   ptr->next = (struct symrec *)sym_table;
   sym_table = ptr;
   return ptr;
@@ -43,6 +36,15 @@ symrec *getsym ( char *sym_name )
     if (strcmp (ptr->name,sym_name) == 0)
       return ptr;
   return 0;
+}
+
+static unsigned symhash(char *sym)
+{
+ unsigned int hash = 0;
+ unsigned c;
+ while((c = *sym++)) 
+  hash = hash*9 ^ c;
+ return hash;
 }
 
 // handles expressions
@@ -87,4 +89,31 @@ struct ast *newval(int nodetype, char* value)
   a->nodetype = nodetype;
   a->value = value;
   return (struct ast *)a;
+}
+
+struct call
+{
+  char *fname;
+  char *scope;
+  int type;
+  struct ast* args[100];
+  struct call *next;
+};
+
+typedef struct call call;
+call *call_table = (call*)0;
+
+call *putcall ( char *fname, char* scope, int type )
+{
+  call *ptr;
+  ptr = (call *) malloc (sizeof(call));
+  ptr->fname = (char *) malloc (strlen(fname)+1);
+  ptr->scope = (char *) malloc (strlen(scope)+1);
+
+  strcpy (ptr->fname,fname);
+  strcpy (ptr->scope,scope);
+  ptr-> type = type;
+  ptr->next = (struct call *)call_table;
+  call_table = ptr;
+  return ptr;
 }

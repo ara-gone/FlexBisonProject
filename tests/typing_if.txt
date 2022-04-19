@@ -7,6 +7,7 @@ void main() {
 
 	int x;
 
+	// if statements apparently only have one statement according to spec?
 	if (9 != 8) then
 	{
 		printf("hola!");

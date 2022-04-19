@@ -1,0 +1,12 @@
+struct Name {
+	string first_name,
+	string last_name
+}
+
+void main() { 
+	// this is a procedure
+	string a;
+	Name aName;
+	aName.first_name = "Michael"
+	aName.last_name = "Jackson"
+}

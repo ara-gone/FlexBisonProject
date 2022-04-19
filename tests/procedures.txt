@@ -1,0 +1,19 @@
+void main() { 
+	f();
+	int i;
+	i = g();
+}
+
+int f() {
+	g();
+}
+
+int g() {
+	printf("hello");
+	int b;
+	fn(1);
+}
+
+int fn(int x) {
+
+}
